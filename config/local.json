@@ -1,0 +1,17 @@
+{
+  "Id": 2,
+  "Env": "local",
+  "Webserver": {
+    "Host": "localhost",
+    "Port": 8088,
+    "ReadTimeout": 15,
+    "WriteTimeout": 15,
+    "Cors": []
+  },
+  "Services": {
+    "auth-api": {
+      "Host": "localdev.com:8000",
+      "Id": 1
+    }
+  }
+}
