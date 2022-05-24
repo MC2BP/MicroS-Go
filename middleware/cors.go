@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/MC2BP/MicroS-Go/lib/loglib"
 	"github.com/gorilla/mux"
 )
 
@@ -39,17 +40,13 @@ func (c *basicCorsMiddleware) Middleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// Check if client has valid origin
-		/* let the browser handle cors security
-		const originHeader = "origin"
 		for _, origin := range c.origins {
-			if v, has := r.Header[originHeader]; has && len(v) > 0 && v[0] == origin {
+			if v, has := r.Header["Origin"]; has && len(v) > 0 && v[0] == origin {
 				next.ServeHTTP(w, r)
 				return
 			}
 		}
 		loglib.Warningf("Request to '%s' blocked by cors. Header 'origin' with value '%s' not in list %s", r.URL, r.Header[originHeader], c.allowedOrigins)
-		*/
 		next.ServeHTTP(w, r)
 	})
 }

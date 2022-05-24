@@ -65,6 +65,10 @@ func (c *BasicConfiger) GetEnvironment() string {
 	return c.config.Environment
 }
 
+func (c *BasicConfiger) GetApplicationID() int {
+	return c.config.ID
+}
+
 func (c *BasicConfiger) GetWebserver() Webserver {
 	return c.config.Webserver
 }

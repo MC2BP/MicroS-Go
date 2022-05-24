@@ -2,6 +2,7 @@ package configlib
 
 type Configer interface {
 	GetEnvironment() string
+	GetApplicationID() int
 	GetWebserver() Webserver
 	GetService(service string) Service
 	GetString(path string) string
