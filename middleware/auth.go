@@ -49,6 +49,7 @@ func (a *basicAuthMiddleware) Middleware(next http.Handler) http.Handler {
 			}
 			setUserValues(ctx, userToken)
 		}
+		ctx.Set(authlib.KeyToken, userToken)
 
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
@@ -56,14 +57,14 @@ func (a *basicAuthMiddleware) Middleware(next http.Handler) http.Handler {
 }
 
 func setServiceValues(ctx *contextlib.Context, appToken authlib.ApplicationToken) {
-	ctx.Set(contextlib.KeyApplicationID, appToken.SrcApplicationID)
+	ctx.Set(authlib.KeyApplicationID, appToken.SrcApplicationID)
 }
 
 func setUserValues(ctx *contextlib.Context, userToken authlib.UserToken) {
-	ctx.Set(contextlib.KeyUserUID, userToken.UserUID)
-	ctx.Set(contextlib.KeyUserName, userToken.UserName)
-	ctx.Set(contextlib.KeyEmail, userToken.Email)
-	ctx.Set(contextlib.KeyRoles, userToken.Roles)
-	ctx.Set(contextlib.KeyPermission, userToken.Permissions)
-	ctx.Set(contextlib.KeyValidUntil, userToken.ValidUntil)
+	ctx.Set(authlib.KeyUserUID, userToken.UserUID)
+	ctx.Set(authlib.KeyUserName, userToken.UserName)
+	ctx.Set(authlib.KeyEmail, userToken.Email)
+	ctx.Set(authlib.KeyRoles, userToken.Roles)
+	ctx.Set(authlib.KeyPermission, userToken.Permissions)
+	ctx.Set(authlib.KeyValidUntil, userToken.ValidUntil)
 }

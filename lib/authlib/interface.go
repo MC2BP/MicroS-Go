@@ -1,10 +1,13 @@
 package authlib
 
-import "context"
+import (
+	"context"
+	"crypto/rsa"
+)
 
 type Authenticator interface {
-	GenerateServiceToken(serviceID int) string
-	GenerateServiceTokenWithUserData(serviceID int, ctx context.Context) string
+	GenerateServiceToken(serviceID int) (string, error)
+	GenerateServiceTokenWithUserData(serviceID int, ctx context.Context) (string, error)
 }
 
 type TokenParser interface {
@@ -13,6 +16,6 @@ type TokenParser interface {
 }
 
 type KeyProvider interface {
-	GetPrivateKey() (string, error)
-	GetPublicKey(applicationID int) (string, error)
+	GetPrivateKey() (*rsa.PrivateKey, error)
+	GetPublicKey(applicationID int) (*rsa.PublicKey, error)
 }

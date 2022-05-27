@@ -9,22 +9,22 @@ type ObjectPermission map[string]Roles
 type Permission map[string]ObjectPermission
 
 type UserToken struct {
-	UserName    string
-	UserUID     string
-	Email       string
-	Roles       Roles
-	Permissions Permission
-	ValidUntil  time.Time
+	UserName    string     `json:"usr"`
+	UserUID     string     `json:"uid"`
+	Email       string     `json:"mail"`
+	Roles       Roles      `json:"roles"`
+	Permissions Permission `json:"permissions"`
+	ValidUntil  time.Time  `json:"exp"`
 }
 
 type ApplicationToken struct {
-	ApplicationID    int
-	SrcApplicationID int
-	UserToken        string
+	ApplicationID    int    `json:"aud"`
+	SrcApplicationID int    `json:"iss"`
+	UserToken        string `json:"usrt"`
 }
 
 type JWTHeader struct {
-	ALG string `json:"alg"`
+	Alg string `json:"alg"`
 	Typ string `json:"typ"`
 }
 

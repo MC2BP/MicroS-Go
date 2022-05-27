@@ -8,16 +8,6 @@ import (
 	"github.com/MC2BP/MicroS-Go/lib/authlib"
 )
 
-const (
-	KeyUserName      = "uname"
-	KeyUserUID       = "uid"
-	KeyEmail         = "email"
-	KeyRoles         = "roles"
-	KeyPermission    = "permission"
-	KeyValidUntil    = "validuntil"
-	KeyApplicationID = "applicationid"
-)
-
 type Context struct {
 	context context.Context
 }
@@ -35,31 +25,31 @@ func (ctx *Context) Set(key, val interface{}) {
 
 // GetUserUID returns the UID of the current user
 func (ctx *Context) GetUserUID() (uid string) {
-	uid, _ = ctx.Value(KeyUserUID).(string)
+	uid, _ = ctx.Value(authlib.KeyUserUID).(string)
 	return uid
 }
 
 // GetRoles returns the roles of the current user
 func (ctx *Context) GetRoles() authlib.Roles {
-	roles, _ := ctx.Value(KeyUserUID).(authlib.Roles)
+	roles, _ := ctx.Value(authlib.KeyUserUID).(authlib.Roles)
 	return roles
 }
 
 // GetRoles returns the permissions of the current user
 func (ctx *Context) GetPermission() authlib.Permission {
-	permission, _ := ctx.Value(KeyUserUID).(authlib.Permission)
+	permission, _ := ctx.Value(authlib.KeyUserUID).(authlib.Permission)
 	return permission
 }
 
 // GetEmail returns the email of the current user
 func (ctx *Context) GetEmail() string {
-	email, _ := ctx.Value(KeyEmail).(string)
+	email, _ := ctx.Value(authlib.KeyEmail).(string)
 	return email
 }
 
 // GetApplicationID returns the id of the application
 func (ctx *Context) ApplicationID() string {
-	email, _ := ctx.Value(KeyEmail).(string)
+	email, _ := ctx.Value(authlib.KeyEmail).(string)
 	return email
 }
 
