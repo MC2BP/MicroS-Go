@@ -107,8 +107,25 @@ func (a *basicAuthenticator) ParseUserToken(token string) (payload UserToken, er
 	return 
 }
 
-func (a *basicAuthenticator) ParseApplicationToken(token string) (ApplicationToken, error) {
-	return ApplicationToken{}, nil
+func (a *basicAuthenticator) ParseApplicationToken(token string) (payload ApplicationToken, err error) {
+	jwt := strings.Split(token, ".")
+	if len(jwt) != 3 {
+		return payload, errorlib.Err("JWT invalid")
+	}
+	
+	rawPayload, err := base64.RawStdEncoding.DecodeString(jwt[1])
+	if err != nil {
+		return
+	}
+
+	err = a.verifySignature(UserAuthServiceID, jwt[0], jwt[1], jwt[2])
+	if err != nil {
+		return 
+	}
+
+	err = json.Unmarshal(rawPayload, &payload)
+
+	return 
 }
 
 func (a *basicAuthenticator) GetPublicKey(appID int) (*rsa.PublicKey, error) {
@@ -132,7 +149,7 @@ func getHash(header string, payload string) []byte {
 }
 
 func (a *basicAuthenticator) getJWT(serviceID int, header, payload string) (string, error) {
-	sign, err := rsa.SignPSS(rand.Reader, a.privateKey, crypto.SHA256, getHash(defaultJWTHeader, payload), nil)
+	sign, err := rsa.SignPSS(rand.Reader, a.privateKey, crypto.SHA512, getHash(defaultJWTHeader, payload), nil)
 	if err != nil {
 		return "", err
 	}
@@ -154,50 +171,4 @@ func (a *basicAuthenticator) verifySignature(serviceID int, header, payload , si
 	}
 	hash := getHash(header, payload)
 	return rsa.VerifyPSS(publicKey, crypto.SHA512, hash, rawSign, nil)
-}
-
-/*
-func DecodeToken(token string) error {
-	var (
-		rawHeader  []byte
-		rawPayload []byte
-	)
-	tokenSplit := strings.Split(token, ".")
-	if len(tokenSplit) != 3 {
-		return errorlib.Errf("Token is invalid, expected 3 parts seperated by '.' but got %d", len(tokenSplit))
-	}
-
-	_, err := base64.RawURLEncoding.Decode(rawHeader, []byte(tokenSplit[0]))
-	if err != nil {
-		return err
-	}
-	var header JWTHeader
-	err = json.Unmarshal(rawHeader, &header)
-	if err != nil {
-		return err
-	}
-
-	_, err = base64.RawURLEncoding.Decode(rawPayload, []byte(tokenSplit[1]))
-	if err != nil {
-		return err
-	}
-
-	var payload JWTPayload
-	err = json.Unmarshal(rawPayload, &payload)
-	if err != nil {
-		return err
-	}
-
-	// TODO validate
-
-	return nil
-}
-*/
-
-func UnpackUserToken(token string) (user UserToken, err error) {
-	return user, err
-}
-
-func UnpackApplicationToken(token string) (user UserToken, err error) {
-	return user, err
 }

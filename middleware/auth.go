@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"regexp"
 
 	"github.com/MC2BP/MicroS-Go/lib/authlib"
 	"github.com/MC2BP/MicroS-Go/lib/configlib"
@@ -11,14 +12,25 @@ import (
 )
 
 type basicAuthMiddleware struct {
-	applicationID int
-	parser        authlib.TokenParser
+	applicationID  int
+	parser         authlib.TokenParser
+	excludedRoutes []*regexp.Regexp
 }
 
-func AuthMiddleware(cfg configlib.Configer, parser authlib.TokenParser) mux.MiddlewareFunc {
+func AuthMiddleware(cfg configlib.Configer, parser authlib.TokenParser, excludedRoutes []string) mux.MiddlewareFunc {
+	routeRegexes := make([]*regexp.Regexp, len(excludedRoutes))
+	for i, route := range excludedRoutes {
+		routeRegex, err := regexp.Compile(route)
+		if err != nil {
+			panic(err)
+		}
+		routeRegexes[i] = routeRegex
+	}
+
 	auth := &basicAuthMiddleware{
 		applicationID: cfg.GetApplicationID(),
 		parser:        parser,
+		excludedRoutes: routeRegexes,
 	}
 	return auth.Middleware
 }
@@ -26,6 +38,16 @@ func AuthMiddleware(cfg configlib.Configer, parser authlib.TokenParser) mux.Midd
 func (a *basicAuthMiddleware) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := contextlib.NewContext(r)
+		
+		// check if routes is excluded
+		for _, routeRegex := range a.excludedRoutes {
+			if routeRegex.Match([]byte(r.URL.RequestURI())) {
+				next.ServeHTTP(w, r)
+				return
+			}
+		}
+
+
 		var userToken string
 		if v, has := r.Header["Authorization"]; has && len(v) == 1 {
 			appToken, err := a.parser.ParseApplicationToken(v[0])
@@ -34,6 +56,11 @@ func (a *basicAuthMiddleware) Middleware(next http.Handler) http.Handler {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
+			if appToken.ApplicationID != a.applicationID {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+
 			setServiceValues(ctx, appToken)
 			userToken = appToken.UserToken
 		} else if cookie, err := r.Cookie(""); err != nil {
